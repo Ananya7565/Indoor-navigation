@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff"/>
+    <title>CAPSTONE PROJECT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Allura&family=EB+Garamond:wght@500&family=Montserrat:wght@300&family=Nanum+Gothic&family=Playfair+Display&family=Quicksand:wght@300&display=swap" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  
+    <style>
+        body {
+          background-image: url('/static/cd.jpg');
+          background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        #legend {
+            border: 2px solid #141212;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="font-family: 'Montserrat', sans-serif; font-weight: 100;background-color: transparent;color: #ffffff;text-align: center;">KNOW YOUR LOCATION</h1>
+    <div style="width: 350px;height: 123px;border-radius: 10px; margin-left: auto;margin-right: auto;position: relative;background-color: #ffffff;">
+        <form  enctype="multipart/form-data" action="/process_image" method="post" id="upload-form">
+            <input type="file" id="file-input" name="image" accept=".jpg, .jpeg, .png" style="display: none;">
+            <button style="display:block ;margin:20px;width:270px; height:50px;background-color: #080609;border-radius: 15px;border-color: #ffffff; font-size: large;font-family: 'Montserrat', sans-serif; font-weight: 200;color: #ffffff;margin-left: 35px;" type="button" onclick="selectImage()">Select Image</button>
+            <button style="display:block ;margin:20px;width:270px; height:50px;background-color:#080609;border-radius: 15px;border-color: #ffffff; font-size: large;font-family: 'Montserrat', sans-serif; font-weight: 200;color: #ffffff;margin-left: 35px;" type="button" onclick="handleImageUpload()">Upload Image</button>
+        </form>
+    </div> 
+    <div id="loading" style="display: none; text-align: center; color: #ffffff; font-family: 'Montserrat', sans-serif; font-size: large;">
+        Predicting location...
+    </div>   
+    <div id="result" style="color: rgb(255, 255, 255);background-color: transparent;border-radius: 10px;font-size: large;font-family: 'Montserrat', sans-serif; font-weight: 400;text-align: center;padding: 20px;">
+    </div>
+    <div id="root">
+    </div>
+    <div style="position: relative;top: 70px;text-align: center;">
+        <label style="color: rgb(255, 255, 255);margin-top: auto;font-size: large;font-family: 'Montserrat', sans-serif; font-weight: 400;padding-right: 10px;"for="tag-select">Select a Destination Location:</label>
+
+        <select id="tag-select">
+            <option value="300">G04 Hallway</option>
+            <option value="400">BG03 Entry</option>
+            <option value="3">G04 Lecture Hall</option>
+            <option value="4">Staff Lift</option>
+            <option value="5">Ground Floor Staff Room</option>
+            <option value="6">G03 Hallway</option>
+            <option value="7">G02 Lecture Hall</option>
+            <option value="8">Staff Room Office & Bulletin Board</option>
+            <option value="9">G05 Lecture Hall</option>
+            <option value="10">G01 Research Laboratory</option>
+            <option value="50">Chairperson Office</option>
+            <option value="1">G08 Lecture Hall</option>
+            <option value="2">G10 Laboratory</option>
+            <option value="24">Electrical Room & GU2 Utility</option>
+            <option value="25">Girls Toilet</option>
+            <option value="26">BGA1 Auditorium</option>
+            <option value="27">G06 Lecture Hall</option>
+            <option value="28">G07 Lecture Hall</option>
+            <option value="29">G11 Lecture Hall</option>
+            <option value="30">G12 Lecture Hall</option>
+            <option value="31">Lobby</option>
+            <option value="310">Lobby</option>
+            <option value="32">Lift 1</option>
+            <option value="33">Lift 2</option>
+            <option value="11">Backdoor Seating Area 1</option>
+            <option value="12">Backdoor Seating Area 2</option>
+            <option value="13">Outdoor Exit</option>
+            <option value="14">Silent Room</option>
+            <option value="15">Outdoor Seating Area</option>
+            <option value="16">Canteen</option>
+            <option value="17">Canteen Entrance</option>
+            <option value="18">Silent Room Hallway</option>
+            <option value="19">13th Floor Entrance</option>
+            <option value="20">Outdoor Seating Hallway</option>
+            <option value="21">Silent Room Outdoor Area 1</option>
+            <option value="22">Silent Room Outdoor Area 2</option>
+            <option value="23">Silent Room Outdoor Area 3</option>
+        </select>
+        <button type="button" style=" color:black; width:270px; height:50px;background-color:#ffffff;border-radius: 15px;font-size: large;font-family: 'Montserrat', sans-serif; font-weight: 800"onclick="submitTagSelection()">Submit destination</button>
+        <p id="p1" style = "display:none;"></p>
+
+        
+    </div>
+    <div id="legend">
+        <div id="legend">
+            <h3>Node Legend</h3>
+            <p><strong>1:</strong> G08 Lecture Hall</p>
+            <p><strong>2:</strong> G10 Laboratory</p>
+            <p><strong>3:</strong> G04 Lecture Hall</p>
+            <p><strong>4:</strong> Staff Lift</p>
+            <p><strong>5:</strong> Ground Floor Staff Room</p>
+            <p><strong>6:</strong> G03 Hallway</p>
+            <p><strong>7:</strong> G02 Lecture Hall</p>
+            <p><strong>8:</strong> Staff Room Office & Bulletin Board</p>
+            <p><strong>9:</strong> G05 Lecture Hall</p>
+            <p><strong>10:</strong> G01 Research Laboratory</p>
+            <p><strong>24:</strong> Electrical Room & GU2 Utility</p>
+            <p><strong>25:</strong> Girls Toilet</p>
+            <p><strong>26:</strong> BGA1 Auditorium</p>
+            <p><strong>27:</strong> G06 Lecture Hall</p>
+            <p><strong>28:</strong> G07 Lecture Hall</p>
+            <p><strong>29:</strong> G11 Lecture Hall</p>
+            <p><strong>30:</strong> G12 Lecture Hall</p>
+            <p><strong>31:</strong> Lobby</p>
+            <p><strong>32:</strong> Lift 1</p>
+            <p><strong>33:</strong> Lift 2</p>
+            <p><strong>40:</strong> BG03 Entry</p>
+            <p><strong>50:</strong> Chairperson Office</p>
+            <p><strong>310:</strong> Lobby</p>
+            <p><strong>11</strong></p>Backdoor Seating Area 1</option>
+            <p><strong>12</strong></p>Backdoor Seating Area 2</option>
+            <p><strong>13</strong></p>Outdoor Exit</option>
+            <p><strong>14</strong></p>Silent Room</option>
+            <p><strong>15</strong></p>Outdoor Seating Area</option>
+            <p><strong>16</strong></p>Canteen</option>
+            <p><strong>17</strong></p>Canteen Entrance</option>
+            <p><strong>18</strong></p>Silent Room Hallway</option>
+            <p><strong>19</strong></p>13th Floor Entrance</option>
+            <p><strong>20</strong></p>Outdoor Seating Hallway</option>
+            <p><strong>21</strong></p>Silent Room Outdoor Area 1</option>
+            <p><strong>22</strong></p>Silent Room Outdoor Area 2</option>
+            <p><strong>23</strong></p>Silent Room Outdoor Area 3</option>
+        </div>        
+    </div>
+    <!-- <img id="blueprint-image" src="C:/Users/Dell/Desktop/capstone_final_app/new_capstone_flask/capstone_flaskapp/static/shortest_path_image_1.png" alt="Blueprint with Shortest Path" style="max-width: 100%; display: none;">
+    <img id="blueprint-image-13" src="" alt="Blueprint with Shortest Path" style="max-width: 100%; display: none;"> -->
+
+    <!-- Add a container div for the images -->
+    
+    <img id="blueprint-image" src="" alt="Blueprint with Shortest Path" style="max-width: 100%;  display: none;">
+    
+    <img id="blueprint-image-13" src="" alt="Blueprint with Shortest Path" style="max-width: 100%; display: none;">
+    
+
+
+</body>
+    
+<script>
+    if ('serviceWorker' in navigator) 
+    {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+      if (registrations.length === 0) {
+        navigator.serviceWorker.register('../static/service-worker.js?v=1')
+        .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+              })
+        .catch(error => {
+            console.error('Service Worker registration failed:', error);
+              });
+    }
+    else {
+        console.log('Service Worker is already registered.');
+      }
+    });
+  }
+    let imageTag = null;
+
+    function selectImage() 
+    {
+        const inputFile = document.getElementById('file-input');
+        inputFile.click(); 
+    }       
+    async function handleImageUpload() 
+    {
+        const inputFile = document.getElementById('file-input');
+        const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
+        if (inputFile.files.length > 0) 
+        {
+            const formData = new FormData();
+            formData.append('image', inputFile.files[0]);
+            try 
+            {
+                loadingDiv.style.display = 'block';
+                const response = await fetch('/process_image', {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (response.ok) 
+                {
+                    const data = await response.json();
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = data.result;
+                    imageTag = resultDiv.innerHTML
+                    console.log("THIS IS IMAGE TAG IN UPLOADIMAGE FUNC",imageTag);
+                } 
+                else 
+                {
+                    console.error('Error:', response.status, response.statusText);
+                }
+            } 
+            catch (error) 
+            {
+                console.error('Error:', error);
+            }finally{
+                loadingDiv.style.display = 'none';
+            }
+        }
+    }
+
+    let sourceTag = null; 
+    let destinationTag = null;
+    async function submitTagSelection() 
+    {
+        const resultDiv = document.getElementById('result');
+        console.log(resultDiv.innerText);
+        const tagSelect = document.getElementById('tag-select');
+        let blueprintImage; 
+        const selectedTag = parseInt(tagSelect.value);
+        console.log("the selected tag is :",selectedTag);
+        console.log("the image tag is ",imageTag);
+        if (!isNaN(selectedTag)) 
+        {
+            destinationTag = selectedTag;
+            const formData = new FormData();
+            formData.append('image_path', imageTag);
+            formData.append('selected_tag', destinationTag);        
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = imageTag;
+            console.log(formData);
+            try 
+            {
+                const response = await fetch('/set_selected_tag', {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (response.ok) 
+                {
+                    const data = await response.json();
+                    if(data.p1)
+                    {
+                        console.log("in p1");
+                        p1_tag = document.getElementById('p1');
+                        p1_tag.textContent = data.p1;
+                        p1_tag.style.display = 'block';
+                    }
+                    else{
+                        p1_tag.style.display = 'none';
+                    }
+                    
+                    if (data.image_url) 
+                    {     
+                        console.log(data.p1);               
+                        console.log("THIS IS BLUEPRINT-Ground",data.image_url);
+                        blueprintImage = document.getElementById('blueprint-image');
+                        blueprintImage.src = data.image_url+ '?timestamp=' + new Date().getTime();;  
+                        blueprintImage.style.display = 'block';  
+                    }
+                    else
+                    {
+                        console.log("no G floor");
+                        blueprintImage = document.getElementById('blueprint-image');
+                        blueprintImage.src = '';;  
+                        blueprintImage.style.display = 'none';
+                    }
+                    if (data.image_url_13) 
+                    {                    
+                        console.log("THIS IS BLUEPRINT-13",data.image_url_13);
+                        blueprintImage_13 = document.getElementById('blueprint-image-13');
+                       
+                        blueprintImage_13.src = data.image_url_13+ '?timestamp=' + new Date().getTime();;  
+                        blueprintImage_13.style.display = 'block';  
+                        
+                    }
+                    else{
+                        console.log("THere is no BLUEPRINT-13");
+                        blueprintImage_13 = document.getElementById('blueprint-image-13');
+                       
+                        blueprintImage_13.src = '';;  
+                        blueprintImage_13.style.display = 'none';  
+                    }
+                } 
+                else 
+                {
+                    console.error('Error:', response.status, response.statusText);
+                }
+            } 
+            catch (error) 
+            {
+                console.error('Error:', error);
+            }
+        }
+    }
+    
+</script>
+</html>
